@@ -7,9 +7,9 @@ public class csPlayerController : MonoBehaviour {
 	public float walkSpeed = 3.0f;
 	public float gravity = 20.0f;
 	public float jumpSpeed = 8.0f;
+	public float skillmovespeed = 0.02f;
 	private Vector3 velocity;
 
-	public GameObject followManager;
 	CharacterController controller = null;
 	Animator anim = null;
 
@@ -33,24 +33,22 @@ public class csPlayerController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if (ismove) {
-			if (controller.isGrounded) {
+			if (!isAttack) {
 				velocity = new Vector3 (Input.GetAxis ("Horizontal"), 0, Input.GetAxis ("Vertical"));
+			}
+			else{
+				velocity = new Vector3 (0, 0, 0);
+			}
+
 
 				//velocity = new Vector3 (CrossPlatformInputManager.GetAxis ("Horizontal"), 0, CrossPlatformInputManager.GetAxis ("Vertical"));
 				velocity *= walkSpeed;
 
-				//if (CrossPlatformInputManager.GetButton ("Attack") && isAttack == false) {
-				//	isAttack = true;
-				//	anim.SetBool ("Attack", true);
-				//	return;
-				//}
 				if (CrossPlatformInputManager.GetButton ("Attack")) {
-					anim.SetBool ("isMove", false);
 					anim.SetBool ("isAttack", true);
+					anim.SetBool ("isMove", false);
 					isAttack = true;
-					//transform.LookAt (transform.position + velocity);
 				} else {
-					isAttack = false;
 					anim.SetBool ("isAttack", false);
 					if (velocity.magnitude > 0) {
 						anim.SetBool ("isMove", true);
@@ -60,14 +58,8 @@ public class csPlayerController : MonoBehaviour {
 					}
 
 				}
-				//Debug.Log (velocity.magnitude);
-			} else {
-			}
-
-			velocity.y -= (gravity * Time.deltaTime);
-			if (!isAttack) {
-				controller.Move (velocity * Time.deltaTime);
-			}
+			velocity.y -= (gravity);
+			controller.Move (velocity * Time.deltaTime);
 		}
 	}
 
@@ -75,18 +67,13 @@ public class csPlayerController : MonoBehaviour {
 	{
 		ismove = false;
 
-		//followManager.GetComponent<UnityStandardAssets.Utility.SmoothFollow> ().height = 20.0f;
-		//followManager.GetComponent<UnityStandardAssets.Utility.SmoothFollow> ().enabled = false;
 		pointpos = new Vector3[20];
 		for (int a = 0; a < vec.Count - 1; a++) {
 			GameObject pointobj = vec [a] as GameObject;
 			pointpos [a] = pointobj.transform.position;
 		}
 
-
-
 		for (int a = 0; a < pointpos.Length - 1; a++) {
-			//transform.position = new Vector3((Vector3)vec [a]);
 			Vector3 dir = (Vector3)pointpos [a + 1] - (Vector3)pointpos [a];
 
 			float distance1 = Vector3.Distance ((Vector3)pointpos [a + 1], (Vector3)pointpos [a]);
@@ -101,40 +88,14 @@ public class csPlayerController : MonoBehaviour {
 			}
 
 			transform.position = (Vector3)pointpos [a];
-			//transform.Translate ();
-			yield return new WaitForSeconds (0.1f);
+			yield return new WaitForSeconds (skillmovespeed);
 		}
-//
-//		for (int a = 0; a < vec.Count - 1; a++) {
-//			//transform.position = new Vector3((Vector3)vec [a]);
-//			Vector3 dir = (Vector3)vec [a + 1] - (Vector3)vec [a];
-//
-//			float distance1 = Vector3.Distance ((Vector3)vec [a + 1], (Vector3)vec [a]);
-//			thisdis += distance1;
-//			if (thisdis > maxdis) {
-//				ismove = true;
-//				anim.SetBool ("isSkill", false);
-//				isAttack = false;
-//				Debug.Log (a);
-//				break;
-//			}
-//
-//			dir.Normalize ();
-//			if (dir != Vector3.zero) {
-//				Quaternion moveQtn = Quaternion.LookRotation (dir);
-//
-//				transform.rotation = Quaternion.Lerp (transform.rotation,
-//					moveQtn,
-//					30.0f * Time.deltaTime);
-//			}
-//
-//			transform.position = (Vector3)vec [a];
-//			yield return new WaitForSeconds (0.01f);
-//		}
-//
 
-		//followManager.GetComponent<UnityStandardAssets.Utility.SmoothFollow> ().height = 10.0f;
-		//followManager.GetComponent<UnityStandardAssets.Utility.SmoothFollow> ().enabled = true;
 		ismove = true;
+	}
+
+	void OkMove()
+	{
+		isAttack = false;
 	}
 }
