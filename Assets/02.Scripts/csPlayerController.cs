@@ -16,8 +16,12 @@ public class csPlayerController : MonoBehaviour {
 	bool ismove = true;
 	public float thisdis = 0.0f;
 	public float maxdis = 100.0f;
+	Vector3[] pointpos;
+
 
 	public bool isAttack = false;
+
+
 
 	// Use this for initialization
 	void Start () {
@@ -44,24 +48,26 @@ public class csPlayerController : MonoBehaviour {
 					anim.SetBool ("isMove", false);
 					anim.SetBool ("isAttack", true);
 					isAttack = true;
-					transform.LookAt (transform.position + velocity);
+					//transform.LookAt (transform.position + velocity);
 				} else {
 					isAttack = false;
 					anim.SetBool ("isAttack", false);
 					if (velocity.magnitude > 0) {
 						anim.SetBool ("isMove", true);
 						transform.LookAt (transform.position + velocity);
-
 					} else {
 						anim.SetBool ("isMove", false);
 					}
 
 				}
 				//Debug.Log (velocity.magnitude);
+			} else {
 			}
 
 			velocity.y -= (gravity * Time.deltaTime);
-			controller.Move (velocity * Time.deltaTime);
+			if (!isAttack) {
+				controller.Move (velocity * Time.deltaTime);
+			}
 		}
 	}
 
@@ -71,35 +77,61 @@ public class csPlayerController : MonoBehaviour {
 
 		//followManager.GetComponent<UnityStandardAssets.Utility.SmoothFollow> ().height = 20.0f;
 		//followManager.GetComponent<UnityStandardAssets.Utility.SmoothFollow> ().enabled = false;
-
-
+		pointpos = new Vector3[20];
 		for (int a = 0; a < vec.Count - 1; a++) {
-			//transform.position = new Vector3((Vector3)vec [a]);
-			Vector3 dir = (Vector3)vec [a + 1] - (Vector3)vec [a];
+			GameObject pointobj = vec [a] as GameObject;
+			pointpos [a] = pointobj.transform.position;
+		}
 
-			float distance1 = Vector3.Distance ((Vector3)vec [a + 1], (Vector3)vec [a]);
-			thisdis += distance1;
-			if (thisdis > maxdis) {
-				ismove = true;
-				anim.SetBool ("isSkill", false);
-				isAttack = false;
-				Debug.Log (a);
-				break;
-			}
+
+
+		for (int a = 0; a < pointpos.Length - 1; a++) {
+			//transform.position = new Vector3((Vector3)vec [a]);
+			Vector3 dir = (Vector3)pointpos [a + 1] - (Vector3)pointpos [a];
+
+			float distance1 = Vector3.Distance ((Vector3)pointpos [a + 1], (Vector3)pointpos [a]);
 
 			dir.Normalize ();
 			if (dir != Vector3.zero) {
 				Quaternion moveQtn = Quaternion.LookRotation (dir);
-			
+
 				transform.rotation = Quaternion.Lerp (transform.rotation,
 					moveQtn,
 					30.0f * Time.deltaTime);
 			}
 
-			transform.position = (Vector3)vec [a];
-			yield return new WaitForSeconds (0.01f);
+			transform.position = (Vector3)pointpos [a];
+			//transform.Translate ();
+			yield return new WaitForSeconds (0.1f);
 		}
-
+//
+//		for (int a = 0; a < vec.Count - 1; a++) {
+//			//transform.position = new Vector3((Vector3)vec [a]);
+//			Vector3 dir = (Vector3)vec [a + 1] - (Vector3)vec [a];
+//
+//			float distance1 = Vector3.Distance ((Vector3)vec [a + 1], (Vector3)vec [a]);
+//			thisdis += distance1;
+//			if (thisdis > maxdis) {
+//				ismove = true;
+//				anim.SetBool ("isSkill", false);
+//				isAttack = false;
+//				Debug.Log (a);
+//				break;
+//			}
+//
+//			dir.Normalize ();
+//			if (dir != Vector3.zero) {
+//				Quaternion moveQtn = Quaternion.LookRotation (dir);
+//
+//				transform.rotation = Quaternion.Lerp (transform.rotation,
+//					moveQtn,
+//					30.0f * Time.deltaTime);
+//			}
+//
+//			transform.position = (Vector3)vec [a];
+//			yield return new WaitForSeconds (0.01f);
+//		}
+//
 
 		//followManager.GetComponent<UnityStandardAssets.Utility.SmoothFollow> ().height = 10.0f;
 		//followManager.GetComponent<UnityStandardAssets.Utility.SmoothFollow> ().enabled = true;
